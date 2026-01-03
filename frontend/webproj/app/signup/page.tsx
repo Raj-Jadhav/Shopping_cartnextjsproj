@@ -28,13 +28,16 @@ export default function SignupPage() {
 
   async function onSubmit(data: SignupSchemaType) {
     try {
-      const response = await fetch("http://localhost:8000/api/register/", {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/register/`,
+        {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
+         "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      });
+        }
+      );
 
       const result = await response.json();
 
