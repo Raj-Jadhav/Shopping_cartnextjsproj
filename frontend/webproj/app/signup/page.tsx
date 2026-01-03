@@ -40,7 +40,7 @@ export default function SignupPage() {
         setMessage("Account created successfully! Please log in.");
         form.reset();
       } else {
-        setMessage(result?.error || "Signup failed");
+        setMessage(result?.error || "Server error. Please try again.");
       }
     } catch (error) {
       setMessage("An error occurred. Please try again.");
@@ -131,9 +131,9 @@ export default function SignupPage() {
       </Form>
 
       {message && (
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          {message}
-        </p>
+        <div className="mt-4 text-center text-sm text-red-500">
+            {message}
+        </div>
       )}
 
       <p className="mt-4 text-center text-sm">
