@@ -1,5 +1,6 @@
 "use client";
 
+import { registerUser } from "@/actions/auth.actions";
 import { useState } from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -27,34 +28,20 @@ export default function SignupPage() {
   });
 
   async function onSubmit(data: SignupSchemaType) {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/register/`,
-        {
-        method: "POST",
-        headers: {
-         "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-        }
-      );
+  try {
+    await registerUser(data);
 
-      const result = await response.json();
+    setMessage("Account created successfully! Redirecting...");
+    form.reset();
 
-      if (response.ok) {
-        setMessage("Account created successfully! Redirecting to login...");
-        form.reset();
-
-        setTimeout(() => {
-            router.push("/login");
-        }, 1500); // 1.5 seconds for UX
-    } else {
-        setMessage(result?.error || "Server error. Please try again.");
-      }
-    } catch (error) {
-      setMessage("An error occurred. Please try again.");
-    }
+    setTimeout(() => {
+      router.push("/login");
+    }, 1500);
+  } catch (error: any) {
+    setMessage(error.message);
   }
+}
+
 
   return (
     <div className="max-w-md mx-auto mt-10">
