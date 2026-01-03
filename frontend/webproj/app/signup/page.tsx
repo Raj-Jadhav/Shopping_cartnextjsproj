@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 import { signupSchema, SignupSchemaType } from "@/schemas/signup.schema";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [message, setMessage] = useState("");
 
   const form = useForm<SignupSchemaType>({
@@ -37,9 +39,13 @@ export default function SignupPage() {
       const result = await response.json();
 
       if (response.ok) {
-        setMessage("Account created successfully! Please log in.");
+        setMessage("Account created successfully! Redirecting to login...");
         form.reset();
-      } else {
+
+        setTimeout(() => {
+            router.push("/login");
+        }, 1500); // 1.5 seconds for UX
+    } else {
         setMessage(result?.error || "Server error. Please try again.");
       }
     } catch (error) {
