@@ -46,14 +46,13 @@ class ItemView(APIView):
 # AUTH
 # =======================
 class RegisterView(APIView):
-    permission_classes = [AllowAny]
-
     def post(self, request):
         try:
             auth_service.register_user(
                 username=request.data.get("username"),
                 password=request.data.get("password"),
                 email=request.data.get("email"),
+                avatar=request.FILES.get("avatar"),
             )
 
             return Response(

@@ -17,22 +17,25 @@ class ItemService:
 
 
 class AuthService:
-    def register_user(self, username: str, password: str, email: str = None):
+    def register_user(self, username, password, email, avatar=None):
         if not username or not password:
-            raise ValidationError("Username and password are required")
+            raise ValidationError("Username and password required")
 
         if User.objects.filter(username=username).exists():
             raise ValidationError("Username already exists")
 
-        try:
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                email=email
-            )
-            return user
-        except Exception:
-            raise ValidationError("User registration failed")
+        user = User.objects.create_user(
+            username=username,
+            password=password,
+            email=email,
+        )
+
+        if avatar:
+            user.profile.avatar = avatar
+            user.profile.save()
+
+        return user
+            
 
     def authenticate_user(self, username: str, password: str):
         user = authenticate(username=username, password=password)
