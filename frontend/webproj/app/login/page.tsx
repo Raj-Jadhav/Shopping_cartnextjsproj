@@ -1,23 +1,44 @@
 "use client";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
+import { loginUser } from "@/actions/auth.actions";
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+
+/* ============================
+   ZOD SCHEMA
+============================ */
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
 });
 
+type LoginSchemaType = z.infer<typeof loginSchema>;
+
+/* ============================
+   PAGE
+============================ */
 export default function LoginPage() {
-  const [message, setMessage] = useState("");
   const router = useRouter();
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const [message, setMessage] = useState("");
+
+  const form = useForm<LoginSchemaType>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
@@ -25,34 +46,38 @@ export default function LoginPage() {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof loginSchema>) {
+  /* ============================
+     SUBMIT HANDLER
+  ============================ */
+  async function onSubmit(data: LoginSchemaType) {
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      const result = await response.json();
-      if (response.ok) {
-        localStorage.setItem("access_token", result.access);
-        localStorage.setItem("refresh_token", result.refresh);
-        setMessage("Login successful!");
-        router.push("/");
-      } else {
-        setMessage(result.error || "Login failed");
-      }
-    } catch (error) {
-      setMessage("An error occurred");
+      const result = await loginUser(data);
+
+      // Store JWT tokens
+      localStorage.setItem("access_token", result.access);
+      localStorage.setItem("refresh_token", result.refresh);
+
+      setMessage("Login successful!");
+      router.push("/");
+
+    } catch (error: any) {
+      setMessage(error.message || "Login failed");
     }
   }
 
+  /* ============================
+     UI
+  ============================ */
   return (
     <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-2xl font-bold mb-4">Log In</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center">Log In</h1>
+
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
+          {/* Username */}
           <FormField
             control={form.control}
             name="username"
@@ -66,6 +91,8 @@ export default function LoginPage() {
               </FormItem>
             )}
           />
+
+          {/* Password */}
           <FormField
             control={form.control}
             name="password"
@@ -73,18 +100,41 @@ export default function LoginPage() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="Password" {...field} />
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">Log In</Button>
+
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? "Logging in..." : "Log In"}
+          </Button>
         </form>
       </Form>
-      {message && <p className="mt-4 text-center">{message}</p>}
-      <p className="mt-4 text-center">
-        Don't have an account? <Link href="/signup" className="text-blue-500">Sign up</Link>
+
+      {message && (
+        <p className="mt-4 text-center text-sm text-red-500">
+          {message}
+        </p>
+      )}
+
+      <p className="mt-4 text-center text-sm">
+        Don&apos;t have an account?{" "}
+        <Link
+          href="/signup"
+          className="text-blue-500 hover:underline"
+        >
+          Sign up
+        </Link>
       </p>
     </div>
   );
