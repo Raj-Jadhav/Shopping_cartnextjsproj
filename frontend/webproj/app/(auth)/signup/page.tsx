@@ -24,6 +24,7 @@ export default function SignupPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      avatar: undefined,
     },
   });
 
@@ -66,6 +67,28 @@ export default function SignupPage() {
               </FormItem>
             )}
           />
+
+          {/* Avatar */}
+<FormField
+  control={form.control}
+  name="avatar"
+  render={() => (
+    <FormItem>
+      <FormLabel>Profile Picture</FormLabel>
+      <FormControl>
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) =>
+            form.setValue("avatar", e.target.files?.[0])
+          }
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
+
 
           {/* Email */}
           <FormField

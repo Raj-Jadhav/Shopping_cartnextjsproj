@@ -1,19 +1,23 @@
 import { SignupSchemaType } from "@/schemas/signup.schema";
 
 export async function registerUser(data: SignupSchemaType) {
+  const formData = new FormData();
+
+  formData.append("username", data.username);
+  formData.append("email", data.email);
+  formData.append("password", data.password);
+
+  if (data.avatar) {
+    formData.append("avatar", data.avatar);
+  }
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/auth/register/`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: formData,
     }
   );
-
-  const contentType = res.headers.get("content-type");
-  if (!contentType?.includes("application/json")) {
-    throw new Error(await res.text());
-  }
 
   const result = await res.json();
 
